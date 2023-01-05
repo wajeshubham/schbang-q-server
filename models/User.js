@@ -22,6 +22,10 @@ const userSchema = new Schema(
       lowercase: true,
       validate: [validator.isEmail, "Please provide a valid email"],
     },
+    subscribed: {
+      type: Boolean,
+      default: false,
+    },
     password: {
       type: String,
       required: [true, "Password is required"],

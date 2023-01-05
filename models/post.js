@@ -1,16 +1,11 @@
 import { model, Schema } from "mongoose";
-import validator from "validator";
-import User from "./user.js";
 
 const postSchema = new Schema(
   {
     image: {
       type: String,
-      required: [validator.isURL, "Image is invalid"],
+      required: [true, "Image is invalid"],
       trim: true,
-      // ! Remove this and add s3 and make it required
-      default:
-        "https://wajeshubham-portfolio.s3.ap-south-1.amazonaws.com/docker.jpg",
     },
     title: {
       type: String,
