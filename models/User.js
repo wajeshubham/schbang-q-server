@@ -3,39 +3,39 @@ import validator from "validator";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
-const userSchema = new Schema({
-  name: {
-    type: String,
-    required: [true, "Name is required"],
-    trim: true,
+const userSchema = new Schema(
+  {
+    name: {
+      type: String,
+      required: [true, "Name is required"],
+      trim: true,
+    },
+    username: {
+      type: String,
+      required: [true, "Username is required"],
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+      lowercase: true,
+      validate: [validator.isEmail, "Please provide a valid email"],
+    },
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+      minlength: [8, "Password must be at least 8 characters"],
+      select: false,
+    },
+
+    lastLoggedIn: {
+      type: Date,
+      default: Date.now,
+    },
   },
-  username: {
-    type: String,
-    required: [true, "Username is required"],
-    trim: true,
-  },
-  email: {
-    type: String,
-    required: [true, "Email is required"],
-    unique: true,
-    lowercase: true,
-    validate: [validator.isEmail, "Please provide a valid email"],
-  },
-  password: {
-    type: String,
-    required: [true, "Password is required"],
-    minlength: [8, "Password must be at least 8 characters"],
-    select: false,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  lastLoggedIn: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  { timestamps: true }
+);
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();

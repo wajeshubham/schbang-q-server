@@ -5,6 +5,7 @@ import fileUpload from "express-fileupload";
 
 import healthCheckRouter from "./routers/healthcheck.js";
 import userRouter from "./routers/user.js";
+import postRouter from "./routers/post.js";
 
 const app = express();
 
@@ -27,5 +28,6 @@ app.use(
 
 app.use("/api/v1", healthCheckRouter);
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/post", postRouter);
 
 export default app;
