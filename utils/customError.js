@@ -1,21 +1,22 @@
+import CustomResponse from "./customResponse.js";
+
 class CustomError extends Error {
   /**
    *
    * @param {number} statusCode
-   * @param {string} errorMsg
+   * @param {string} message
    */
-  constructor(errorMsg, statusCode, res) {
-    super(errorMsg);
-    this.status = statusCode;
-    this.message = errorMsg;
+  constructor(message, statusCode, res) {
+    super(message);
+    this.statusCode = statusCode;
+    this.message = message;
     this.sendErrResponse(res);
   }
 
   sendErrResponse(res) {
-    return res.status(this.status).json({
-      status: this.status,
-      message: this.message,
-    });
+    return res
+      .status(this.statusCode)
+      .json(new CustomResponse(this.statusCode, this.message, [], {}));
   }
 }
 
