@@ -31,3 +31,19 @@ export const isLoggedOut = interceptor(async (req, res, next) => {
     return next();
   }
 });
+
+export const isLoggedIn = interceptor(async (req, res, next) => {
+  const token =
+    req.cookies.token || req.header("Authorization")?.replace("Bearer ", "");
+
+  if (!token) {
+    return next(new CustomError("Please log in first", 401, res));
+  }
+  try {
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = await User.findById(decodedToken.id);
+    next();
+  } catch (error) {
+    return next(new CustomError("Please log in first", 401, res));
+  }
+});

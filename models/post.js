@@ -1,4 +1,5 @@
 import { model, Schema } from "mongoose";
+import User from "./user.js";
 
 const postSchema = new Schema(
   {
@@ -18,6 +19,10 @@ const postSchema = new Schema(
       trim: true,
     },
     tags: [String],
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
     likes: [
       {
         type: Schema.Types.ObjectId,
