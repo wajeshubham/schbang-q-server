@@ -14,6 +14,11 @@ COOKIE_DOMAIN=<domain>
 AWS_ACCESS_KEY=<XXXXXXXXXXXXXXXXX>
 AWS_ACCESS_SECRET=<XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX>
 AWS_BUCKET=<bkt-name>
+
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=<mail_address>
+SMTP_PASS=<password_for_external_apps>
 ```
 
 ## Via `Docker`
