@@ -3,6 +3,7 @@ import interceptor from "../middlewares/interceptor.js";
 import CustomError from "../utils/customError.js";
 import setCookie from "../utils/setCookie.js";
 import CustomResponse from "../utils/customResponse.js";
+import sendEmail from "../utils/sendEmail.js";
 
 export const signup = interceptor(async (req, res, next) => {
   const { name, email, password, username } = req.body;
@@ -43,7 +44,6 @@ export const login = interceptor(async (req, res, next) => {
   if (!isMatch) {
     return next(new CustomError("Invalid email or password", 400, res));
   }
-
   user.lastLoggedIn = new Date();
   setCookie(user, res, 200);
 });
@@ -71,6 +71,18 @@ export const subscribe = interceptor(async (req, res, next) => {
   user.save({
     validateBeforeSave: true,
   });
+  await sendEmail({
+    email: user.email,
+    subject: "Welcome to our subscriber's list",
+    message: `
+Hello ${user.name},
+
+We are really glad to see you in our subscriber's list. You will be notified when there is a new post or someone liked/commented on your post.
+
+Thanks and Regards
+SchbangQ
+    `,
+  });
   return res
     .status(200)
     .json(
@@ -95,6 +107,18 @@ export const unsubscribe = interceptor(async (req, res, next) => {
   user.subscribed = false;
   user.save({
     validateBeforeSave: true,
+  });
+  await sendEmail({
+    email: user.email,
+    subject: "You are unsubscribed :-(",
+    message: `
+Hello ${user.name},
+
+We are really sad to see you go. You will not receive any notification from us.
+
+Thanks and Regards
+SchbangQ
+    `,
   });
   return res
     .status(200)
