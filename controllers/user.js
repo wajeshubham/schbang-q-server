@@ -75,12 +75,12 @@ export const subscribe = interceptor(async (req, res, next) => {
     email: user.email,
     subject: "Welcome to our subscriber's list",
     message: `
-Hello ${user.name},
+      Hello ${user.name},
 
-We are really glad to see you in our subscriber's list. You will be notified when there is a new post or someone liked/commented on your post.
+      We are really glad to see you in our subscriber's list. You will be notified when there is a new post or someone liked/commented on your post.
 
-Thanks and Regards
-SchbangQ
+      Thanks and Regards
+      SchbangQ
     `,
   });
   return res
@@ -112,12 +112,12 @@ export const unsubscribe = interceptor(async (req, res, next) => {
     email: user.email,
     subject: "You are unsubscribed :-(",
     message: `
-Hello ${user.name},
+      Hello ${user.name},
 
-We are really sad to see you go. You will not receive any notification from us.
+      We are really sad to see you go. You will not receive any notification from us.
 
-Thanks and Regards
-SchbangQ
+      Thanks and Regards
+      SchbangQ
     `,
   });
   return res

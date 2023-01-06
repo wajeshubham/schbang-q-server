@@ -49,14 +49,14 @@ export const createPost = interceptor(async (req, res) => {
       email: emails,
       subject: `${req.user?.name} has uploaded a new post`,
       message: `
-Hello,
+        Hello,
 
-${req.user?.name} has uploaded a new post with title: ${post.title}. Please check this out here: ${process.env.SERVER_URL}/api/v1/post/${post._id}.
+        ${req.user?.name} has uploaded a new post with title: ${post.title}. Please check this out here: ${process.env.SERVER_URL}/api/v1/post/${post._id}.
 
-Thanks and Regards
-SchbangQ
+        Thanks and Regards
+        SchbangQ
 
-NOTE: You are receiving this because you have subscribed to our notifications.
+        NOTE: You are receiving this because you have subscribed to our notifications.
     `,
     });
   }
@@ -86,6 +86,12 @@ export const deletePost = interceptor(async (req, res, next) => {
 
 export const likePost = interceptor(async (req, res, next) => {
   const { id } = req.params;
+  const post = await Post.findById(id);
+
+  if (!post) return new CustomError("Post does not exist", 400, res);
+
+  const author = await User.findById(post.owner._id);
+
   let likes = await Post.find({ likes: req.user._id, _id: id }).populate(
     "likes"
   );
@@ -93,7 +99,7 @@ export const likePost = interceptor(async (req, res, next) => {
     return new CustomError("Post is already liked!", 400, res);
   }
 
-  const post = await Post.findByIdAndUpdate(
+  await Post.findByIdAndUpdate(
     id,
     {
       $push: {
@@ -102,11 +108,29 @@ export const likePost = interceptor(async (req, res, next) => {
     },
     { new: true }
   );
-  return res.status(200).send(new CustomResponse(200, "Success", [], post));
+  await sendEmail({
+    email: author.email,
+    subject: `${req.user?.name} liked your post`,
+    message: `
+      Hello ${author.name},
+
+      ${req.user?.name} has liked your post with title: ${post.title}. Please check this out here: ${process.env.SERVER_URL}/api/v1/post/${post._id}.
+
+      Thanks and Regards
+      SchbangQ
+
+      NOTE: You are receiving this because you have subscribed to our notifications.
+  `,
+  });
+  return res.status(200).send(new CustomResponse(200, "Liked!", [], {}));
 });
 
 export const disLikePost = interceptor(async (req, res, next) => {
   const { id } = req.params;
+
+  const post = await Post.findById(id);
+
+  if (!post) return new CustomError("Post does not exist", 400, res);
 
   let likes = await Post.find({ likes: req.user._id, _id: id }).populate(
     "likes"
@@ -115,7 +139,7 @@ export const disLikePost = interceptor(async (req, res, next) => {
   if (likes.length <= 0)
     return new CustomError("Post is already disliked!", 400, res);
 
-  const post = await Post.findByIdAndUpdate(
+  await Post.findByIdAndUpdate(
     id,
     {
       $pull: {
@@ -124,5 +148,5 @@ export const disLikePost = interceptor(async (req, res, next) => {
     },
     { new: true }
   );
-  return res.status(200).send(new CustomResponse(200, "Success", [], post));
+  return res.status(200).send(new CustomResponse(200, "Disliked", [], {}));
 });
