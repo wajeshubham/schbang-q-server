@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../models/user.js";
+import CustomError from "../utils/customError.js";
 import CustomResponse from "../utils/customResponse.js";
 import { options } from "../utils/setCookie.js";
 import interceptor from "./interceptor.js";

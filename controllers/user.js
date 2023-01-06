@@ -48,6 +48,16 @@ export const login = interceptor(async (req, res, next) => {
   setCookie(user, res, 200);
 });
 
+export const logout = interceptor(async (req, res, next) => {
+  res.cookie("token", null, {
+    expires: new Date(Date.now()),
+    httpOnly: true,
+  });
+  return res
+    .status(200)
+    .json(new CustomResponse(200, "Logged out successfully", [], {}));
+});
+
 export const subscribe = interceptor(async (req, res, next) => {
   if (req.user?.subscribed)
     return new CustomError(

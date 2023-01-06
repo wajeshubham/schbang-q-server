@@ -49,3 +49,42 @@ export const deletePost = interceptor(async (req, res, next) => {
     })
   );
 });
+
+export const likePost = interceptor(async (req, res, next) => {
+  const { id } = req.params;
+  let likes = await Post.find({ likes: req.user._id }).populate("likes");
+
+  if (likes.length > 0)
+    return new CustomError("Post is already liked!", 400, res);
+
+  const post = await Post.findByIdAndUpdate(
+    id,
+    {
+      $push: {
+        likes: req.user._id,
+      },
+    },
+    { new: true }
+  );
+  return res.status(200).send(new CustomResponse(200, "Success", [], post));
+});
+
+export const disLikePost = interceptor(async (req, res, next) => {
+  const { id } = req.params;
+
+  let likes = await Post.find({ likes: req.user._id }).populate("likes");
+
+  if (likes.length <= 0)
+    return new CustomError("Post is already disliked!", 400, res);
+
+  const post = await Post.findByIdAndUpdate(
+    id,
+    {
+      $pull: {
+        likes: req.user._id,
+      },
+    },
+    { new: true }
+  );
+  return res.status(200).send(new CustomResponse(200, "Success", [], post));
+});
