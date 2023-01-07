@@ -1,6 +1,7 @@
 import interceptor from "../middlewares/interceptor.js";
 import Comment from "../models/comment.js";
 import Post from "../models/post.js";
+import User from "../models/user.js";
 import CustomError from "../utils/customError.js";
 import CustomResponse from "../utils/customResponse.js";
 import sendEmail from "../utils/sendEmail.js";
@@ -24,11 +25,21 @@ export const addComment = interceptor(async (req, res, next) => {
     post: postId,
   });
 
+  const author = await User.findByIdAndUpdate(
+    post.owner._id,
+    {
+      $push: {
+        commentedPosts: comment._id,
+      },
+    },
+    { new: true }
+  );
+
   await sendEmail({
-    email: post?.owner?.email,
+    email: author?.email,
     subject: `${req.user?.name} has commented on your post`,
     message: `
-      Hello ${post?.owner?.name},
+      Hello ${author?.name},
 
       ${req.user?.name} has commented on your post which says:
     
@@ -62,6 +73,16 @@ export const deleteComment = interceptor(async (req, res, next) => {
   if (!comment?.author?.equals(req.user?._id)) {
     return new CustomError("You are not authorized for this task", 401, res);
   }
+
+  await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $pull: {
+        commentedPosts: comment._id,
+      },
+    },
+    { new: true }
+  );
 
   await Comment.findByIdAndDelete(id);
 

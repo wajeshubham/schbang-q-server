@@ -56,3 +56,15 @@ export const isLoggedIn = interceptor(async (req, res, next) => {
     return next(new CustomError("Please log in first", 401, res));
   }
 });
+
+export const logUserActivity = (actionType, message) =>
+  interceptor(async (req, res, next) => {
+    const user = await User.findById(req.user?.id);
+    user.lastActivityLog?.push({
+      message,
+      actionType,
+      date: new Date().toISOString(),
+    });
+    user.save();
+    next();
+  });

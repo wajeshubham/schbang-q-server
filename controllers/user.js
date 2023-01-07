@@ -133,12 +133,11 @@ export const unsubscribe = interceptor(async (req, res, next) => {
     );
 });
 
-// ! Add logic in add comment to connect that comment in User model in addComment controller
 export const getMostActiveUser = interceptor(async (req, res) => {
   const mostLikedUsers = await User.aggregate([
     {
       $sort: {
-        likedPosts: -1,
+        totalActivity: -1,
       },
     },
     {
@@ -158,13 +157,75 @@ export const getMostActiveUser = interceptor(async (req, res) => {
         subscribed: "$subscribed",
         totalPostsLiked: "$totalPostsLiked",
         totalComments: "$totalComments",
+        activityLog: "$lastActivityLog",
+        totalActivity: { $size: "$lastActivityLog" },
       },
     },
     { $limit: 5 },
   ]);
-  return res.status(200).send(
-    new CustomResponse(200, "Most active user fetched", [], {
-      mostLikedUsers,
-    })
-  );
+  return res
+    .status(200)
+    .send(
+      new CustomResponse(200, "Top 5 active user fetched", [], mostLikedUsers)
+    );
+});
+
+export const getUserAnalytics = interceptor(async (req, res, next) => {
+  const { type } = req.query;
+
+  let start = new Date();
+  let end = new Date();
+
+  if (type === "weekly") {
+    start.setDate(start.getDate() - 7);
+  } else if (type === "monthly") {
+    start.setDate(start.getDate() - 30);
+  } else {
+    start.setUTCHours(0, 0, 0, 0);
+  }
+
+  end.setUTCHours(23, 59, 59, 999);
+
+  const user = await User.aggregate([
+    {
+      $match: { _id: req.user?._id },
+    },
+    {
+      $project: {
+        activityType: type === "weekly" || type === "monthly" ? type : "daily",
+        name: "$name",
+        email: "$email",
+        username: "$username",
+        userActivity: {
+          $filter: {
+            input: "$lastActivityLog",
+            as: "activity",
+            cond: {
+              $and: [
+                {
+                  $gte: ["$$activity.date", new Date(start).toISOString()],
+                },
+                {
+                  $lte: ["$$activity.date", new Date(end).toISOString()],
+                },
+              ],
+            },
+          },
+        },
+      },
+    },
+  ]);
+
+  return res
+    .status(200)
+    .json(
+      new CustomResponse(
+        200,
+        `Fetched ${
+          type === "weekly" || type === "monthly" ? type : "daily"
+        } activity`,
+        [],
+        user[0]
+      )
+    );
 });

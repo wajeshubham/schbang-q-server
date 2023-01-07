@@ -47,10 +47,13 @@ const userSchema = new Schema(
         ref: "Comment",
       },
     ],
-    lastLoggedIn: {
-      type: Date,
-      default: Date.now,
-    },
+    lastActivityLog: [
+      {
+        date: String,
+        message: String,
+        actionType: String,
+      },
+    ],
   },
   { timestamps: true }
 );
