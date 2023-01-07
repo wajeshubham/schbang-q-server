@@ -152,8 +152,6 @@ export const likePost = interceptor(async (req, res, next) => {
 
   if (!post) return new CustomError("Post does not exist", 400, res);
 
-  const author = await User.findById(post.owner._id);
-
   let likes = await Post.find({ likes: req.user._id, _id: id }).populate(
     "likes"
   );
@@ -166,6 +164,16 @@ export const likePost = interceptor(async (req, res, next) => {
     {
       $push: {
         likes: req.user._id,
+      },
+    },
+    { new: true }
+  );
+
+  const author = await User.findByIdAndUpdate(
+    post.owner._id,
+    {
+      $push: {
+        likedPosts: post._id,
       },
     },
     { new: true }
@@ -206,6 +214,15 @@ export const disLikePost = interceptor(async (req, res, next) => {
     {
       $pull: {
         likes: req.user._id,
+      },
+    },
+    { new: true }
+  );
+  await User.findByIdAndUpdate(
+    post.owner._id,
+    {
+      $pull: {
+        likedPosts: post._id,
       },
     },
     { new: true }

@@ -3,6 +3,9 @@ import validator from "validator";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
+import Post from "./post.js";
+import Comment from "./comment.js";
+
 const userSchema = new Schema(
   {
     name: {
@@ -32,7 +35,18 @@ const userSchema = new Schema(
       minlength: [8, "Password must be at least 8 characters"],
       select: false,
     },
-
+    likedPosts: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Post",
+      },
+    ],
+    commentedPosts: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Comment",
+      },
+    ],
     lastLoggedIn: {
       type: Date,
       default: Date.now,

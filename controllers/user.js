@@ -4,6 +4,7 @@ import CustomError from "../utils/customError.js";
 import setCookie from "../utils/setCookie.js";
 import CustomResponse from "../utils/customResponse.js";
 import sendEmail from "../utils/sendEmail.js";
+import Post from "../models/post.js";
 
 export const signup = interceptor(async (req, res, next) => {
   const { name, email, password, username } = req.body;
@@ -130,4 +131,40 @@ export const unsubscribe = interceptor(async (req, res, next) => {
         {}
       )
     );
+});
+
+// ! Add logic in add comment to connect that comment in User model in addComment controller
+export const getMostActiveUser = interceptor(async (req, res) => {
+  const mostLikedUsers = await User.aggregate([
+    {
+      $sort: {
+        likedPosts: -1,
+      },
+    },
+    {
+      $addFields: {
+        totalPostsLiked: {
+          $size: "$likedPosts",
+        },
+        totalComments: {
+          $size: "$commentedPosts",
+        },
+      },
+    },
+    {
+      $project: {
+        name: "$name",
+        email: "$email",
+        subscribed: "$subscribed",
+        totalPostsLiked: "$totalPostsLiked",
+        totalComments: "$totalComments",
+      },
+    },
+    { $limit: 5 },
+  ]);
+  return res.status(200).send(
+    new CustomResponse(200, "Most active user fetched", [], {
+      mostLikedUsers,
+    })
+  );
 });
