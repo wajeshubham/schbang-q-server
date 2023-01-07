@@ -8,7 +8,24 @@ import sendEmail from "../utils/sendEmail.js";
 
 export const getPosts = interceptor(async (req, res) => {
   const { skip, limit } = req.query;
-  const posts = await Post.find().skip(skip).limit(limit);
+
+  const posts = await Post.aggregate([
+    {
+      $sort: {
+        createdAt: -1,
+      },
+    },
+    {
+      $limit: isNaN(+limit) ? 10 : +limit,
+    },
+    { $skip: isNaN(+skip) ? 0 : +skip },
+    { $addFields: { likeCount: { $size: "$likes" } } },
+    {
+      $project: {
+        likes: 0,
+      },
+    },
+  ]);
 
   return res
     .status(200)
@@ -29,6 +46,32 @@ export const getPostById = interceptor(async (req, res) => {
       comments,
     })
   );
+});
+
+export const getMostLikedPost = interceptor(async (req, res) => {
+  const post = await Post.aggregate([
+    {
+      $sort: {
+        likes: -1,
+      },
+    },
+    {
+      $limit: 1,
+    },
+    { $addFields: { likeCount: { $size: "$likes" } } },
+    {
+      $project: {
+        likes: 0, // ignore array of ObjectIds
+      },
+    },
+  ]);
+
+  if (!post || post.length <= 0)
+    return new CustomError("There are no posts added!", 400, res);
+
+  return res
+    .status(200)
+    .send(new CustomResponse(200, "Post fetched successfully!", [], post));
 });
 
 export const createPost = interceptor(async (req, res) => {
