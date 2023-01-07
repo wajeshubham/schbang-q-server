@@ -49,7 +49,7 @@ export const getPostById = interceptor(async (req, res) => {
 });
 
 export const getMostLikedPost = interceptor(async (req, res) => {
-  const post = await Post.aggregate([
+  let post = await Post.aggregate([
     {
       $sort: {
         likes: -1,
@@ -59,19 +59,32 @@ export const getMostLikedPost = interceptor(async (req, res) => {
       $limit: 1,
     },
     { $addFields: { likeCount: { $size: "$likes" } } },
-    {
-      $project: {
-        likes: 0, // ignore array of ObjectIds
-      },
-    },
   ]);
 
   if (!post || post.length <= 0)
     return new CustomError("There are no posts added!", 400, res);
 
-  return res
-    .status(200)
-    .send(new CustomResponse(200, "Post fetched successfully!", [], post));
+  const likedBy = await User.aggregate([
+    {
+      $match: {
+        _id: { $in: post[0].likes },
+      },
+    },
+    {
+      $project: {
+        name: "$name",
+        email: "$email",
+        subscribed: "$subscribed",
+      },
+    },
+  ]);
+
+  return res.status(200).send(
+    new CustomResponse(200, "Post fetched successfully!", [], {
+      post: post[0],
+      likedBy,
+    })
+  );
 });
 
 export const createPost = interceptor(async (req, res) => {
