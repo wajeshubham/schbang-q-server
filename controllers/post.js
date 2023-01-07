@@ -1,4 +1,5 @@
 import interceptor from "../middlewares/interceptor.js";
+import Comment from "../models/comment.js";
 import Post from "../models/post.js";
 import User from "../models/user.js";
 import CustomError from "../utils/customError.js";
@@ -20,9 +21,14 @@ export const getPostById = interceptor(async (req, res) => {
 
   if (!post) return new CustomError("Post does not exist", 400, res);
 
-  return res
-    .status(200)
-    .send(new CustomResponse(200, "Post fetched successfully!", [], post));
+  const comments = await Comment.find({ post: post._id }).select("content");
+
+  return res.status(200).send(
+    new CustomResponse(200, "Post fetched successfully!", [], {
+      post,
+      comments,
+    })
+  );
 });
 
 export const createPost = interceptor(async (req, res) => {
