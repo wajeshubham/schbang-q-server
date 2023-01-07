@@ -71,7 +71,7 @@ export const deletePost = interceptor(async (req, res, next) => {
   const post = await Post.findById(id);
 
   if (!post) return new CustomError("Post does not exist", 400, res);
-  if (!post?.owner.equals(req.user?._id)) {
+  if (!post?.owner?.equals(req.user?._id)) {
     return new CustomError("You are not authorized for this task", 401, res);
   }
 

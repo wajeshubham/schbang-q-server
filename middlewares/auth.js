@@ -14,7 +14,11 @@ export const isLoggedOut = interceptor(async (req, res, next) => {
   }
   try {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decodedToken.id);
+    const user = await User.findById(decodedToken.id);
+    if (!user) {
+      return next();
+    }
+    req.user = user;
     // * if token is valid that  means user is already logged in
     return next(
       res
@@ -42,7 +46,11 @@ export const isLoggedIn = interceptor(async (req, res, next) => {
   }
   try {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decodedToken.id);
+    const user = await User.findById(decodedToken.id);
+    if (!user) {
+      return next(new CustomError("Please log in first", 401, res));
+    }
+    req.user = user;
     next();
   } catch (error) {
     return next(new CustomError("Please log in first", 401, res));
