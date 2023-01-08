@@ -36,7 +36,9 @@ export const login = interceptor(async (req, res, next) => {
       new CustomError("Please provide all the required fields", 400, res)
     );
   }
-  const user = await User.findOne({ email }).select("+password");
+  const user = await User.findOne({ email }).select(
+    "+password -lastActivityLog"
+  );
   if (!user) {
     return next(new CustomError("Invalid email or password", 400, res));
   }
@@ -45,7 +47,6 @@ export const login = interceptor(async (req, res, next) => {
   if (!isMatch) {
     return next(new CustomError("Invalid email or password", 400, res));
   }
-  user.lastLoggedIn = new Date();
   setCookie(user, res, 200);
 });
 

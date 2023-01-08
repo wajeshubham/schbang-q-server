@@ -14,21 +14,26 @@ export const isLoggedOut = interceptor(async (req, res, next) => {
   }
   try {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decodedToken.id);
+    const user = await User.findById(decodedToken.id).select(
+      "-lastActivityLog"
+    );
     if (!user) {
       return next();
     }
     req.user = user;
+
     // * if token is valid that  means user is already logged in
     return next(
       res
         .status(200)
         .cookie("token", token, options)
         .json(
-          new CustomResponse(200, "Already logged in", [], {
-            user: req.user,
-            token,
-          })
+          new CustomResponse(
+            200,
+            "User is already logged in. Please logout first",
+            [],
+            {}
+          )
         )
     );
   } catch (error) {
