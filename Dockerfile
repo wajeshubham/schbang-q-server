@@ -6,8 +6,11 @@ COPY package.json .
 
 RUN npm install
 
+RUN npm ci --only=production
+
 COPY . .
 
-EXPOSE 8000
+EXPOSE 80
 
-CMD [ "npm", "run", "dev"]
+# CMD [ "npm", "run", "dev"]
+CMD [ "npm", "start"]

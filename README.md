@@ -3,7 +3,7 @@
 Update `.env` file with correct `DB_URL` as follows:
 
 ```bash
-PORT=8080
+PORT=80
 CORS_ORIGIN=http://localhost:3000
 
 # DB_URL has docker service name that we are running
@@ -24,7 +24,7 @@ SMTP_PORT=465
 SMTP_USER=<mail_address>
 SMTP_PASS=<password_for_external_apps>
 
-SERVER_URL=http://localhost:8080
+SERVER_URL=http://localhost:80
 ```
 
 ## Via `Docker`
