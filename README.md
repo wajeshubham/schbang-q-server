@@ -19,6 +19,8 @@ SMTP_HOST=smtp.gmail.com
 SMTP_PORT=465
 SMTP_USER=<mail_address>
 SMTP_PASS=<password_for_external_apps>
+
+SERVER_URL=http://localhost:8080
 ```
 
 ## Via `Docker`
