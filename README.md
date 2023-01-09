@@ -2,10 +2,14 @@
 
 Update `.env` file with correct `DB_URL` as follows:
 
-```.env
+```bash
 PORT=8080
 CORS_ORIGIN=http://localhost:3000
+
+# DB_URL has docker service name that we are running
+# but, if you are using your local mongodb change mongodb:27017 to localhost:27017
 DB_URL=mongodb://mongodb:27017/db-sch
+
 JWT_SECRET=123456789abcdefghijklmnopqrstuvwxyz
 JWT_EXPIRY=<exp>
 COOKIE_EXPIRY=<exp>
